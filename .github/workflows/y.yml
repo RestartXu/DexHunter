@@ -1,0 +1,53 @@
+name: Buildg
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - '**.md'
+      - '.github/**'
+      - '!.github/workflows/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    if: ${{ !startsWith(github.event.head_commit.message, '[skip ci]') }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup cargo cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: cargo-
+
+      - name: Add target with rustup
+        run: rustup target add x86_64-linux-android
+
+      - name: Install cargo-make
+        run: cargo install cargo-make || true
+
+      - name: Build with cargo
+        id: release
+        run: |
+          cargo make release
+          echo name="Hunter [$(git rev-parse --short HEAD)]" >> $GITHUB_OUTPUT
+
+      - name: Upload artifacts
+        if: success()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.release.outputs.name }}
+          path: target/*/release/hunter
