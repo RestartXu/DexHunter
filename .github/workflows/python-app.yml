@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main  # 你可以修改这里的分支名称
+  workflow_dispatch:
 
 jobs:
   build:
