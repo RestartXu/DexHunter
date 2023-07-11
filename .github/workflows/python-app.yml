@@ -1,21 +1,26 @@
-name: Python application
+name: Python Action
 
-on: [push]
+on:
+  push:
+    branches:
+      - main  # 你可以修改这里的分支名称
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - name: checkout actions
-    - uses: actions/checkout@v1
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-    - name: Set up Python 3.7
-      uses: actions/setup-python@v1
+    - name: Set up Python
+      uses: actions/setup-python@v2
       with:
-        python-version: 3.7
+        python-version: '3.8'  # 你可以指定 Python 版本，比如 '3.8' 或 '3.9'
 
-    - name: Update paper list
+    - name: Install dependencies
       run: |
-        python 1.py
+        python -m pip install --upgrade pip
+     
+    - name: Run Python script
+      run: python 1.py  # 替换为你要运行的 Python 脚本的路径
